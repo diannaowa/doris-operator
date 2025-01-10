@@ -20,10 +20,10 @@ package sub_controller
 import (
 	"context"
 	"fmt"
-	dorisv1 "github.com/apache/doris-operator/api/doris/v1"
-	utils "github.com/apache/doris-operator/pkg/common/utils"
-	"github.com/apache/doris-operator/pkg/common/utils/k8s"
-	"github.com/apache/doris-operator/pkg/common/utils/resource"
+	"strconv"
+	"strings"
+	"time"
+
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -32,9 +32,11 @@ import (
 	"k8s.io/client-go/tools/record"
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strconv"
-	"strings"
-	"time"
+
+	dorisv1 "github.com/apache/doris-operator/api/doris/v1"
+	"github.com/apache/doris-operator/pkg/common/utils"
+	"github.com/apache/doris-operator/pkg/common/utils/k8s"
+	"github.com/apache/doris-operator/pkg/common/utils/resource"
 )
 
 type SubController interface {

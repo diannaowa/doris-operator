@@ -130,6 +130,7 @@ type CommonSpec struct {
 	// VolumeClaimTemplate allows customizing the persistent volume claim for the pod.
 	PersistentVolume *PersistentVolume `json:"persistentVolume,omitempty"`
 
+	Volumes []Volume `json:"volumes,omitempty"`
 	// (Optional) Tolerations for scheduling pods onto some dedicated nodes
 	//+optional
 	Tolerations []corev1.Toleration `json:"tolerations,omitempty"`
@@ -198,6 +199,22 @@ type PersistentVolume struct {
 
 	//if config true, the log will mount a pvc to store logs. the pvc size is definitely 200Gi, as the log recycling system will regular recycling.
 	LogNotStore bool `json:"logNotStore,omitempty"`
+
+	//Annotation for PVC pods. Users can adapt the storage authentication and pv binding of the cloud platform through configuration.
+	//It only takes effect in the first configuration and cannot be added or modified later.
+	Annotations map[string]string `json:"annotations,omitempty"`
+}
+
+// Volume defines volume information and container mount information.
+type Volume struct {
+	// Volume is a list of volume spec about storage that pods are required.
+	// +kubebuilder:validation:Optional
+	corev1.Volume `json:"volume,omitempty"`
+	//the mount path for component service.
+	MountPath string `json:"mountPath,omitempty"`
+
+	//the volume name associate with
+	Name string `json:"name,omitempty"`
 
 	//Annotation for PVC pods. Users can adapt the storage authentication and pv binding of the cloud platform through configuration.
 	//It only takes effect in the first configuration and cannot be added or modified later.

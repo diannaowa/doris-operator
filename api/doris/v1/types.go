@@ -208,6 +208,7 @@ type BaseSpec struct {
 
 	PersistentVolumes []PersistentVolume `json:"persistentVolumes,omitempty"`
 
+	Volumes []Volume `json:"volumes,omitempty"`
 	//SystemInitialization for fe, be and cn setting system parameters.
 	SystemInitialization *SystemInitialization `json:"systemInitialization,omitempty"`
 
@@ -253,6 +254,22 @@ type PersistentVolume struct {
 
 	//defines pvc provisioner
 	PVCProvisioner PVCProvisioner `json:"provisioner,omitempty"`
+}
+
+// Volume defines volume information and container mount information.
+type Volume struct {
+	// Volume is a list of volume spec about storage that pods are required.
+	// +kubebuilder:validation:Optional
+	corev1.Volume `json:"volume,omitempty"`
+	//the mount path for component service.
+	MountPath string `json:"mountPath,omitempty"`
+
+	//the volume name associate with
+	Name string `json:"name,omitempty"`
+
+	//Annotation for PVC pods. Users can adapt the storage authentication and pv binding of the cloud platform through configuration.
+	//It only takes effect in the first configuration and cannot be added or modified later.
+	Annotations map[string]string `json:"annotations,omitempty"`
 }
 
 // PVCProvisioner defines PVC provisioner

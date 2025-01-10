@@ -18,14 +18,16 @@
 package resource
 
 import (
-	dv1 "github.com/apache/doris-operator/api/disaggregated/v1"
-	v1 "github.com/apache/doris-operator/api/doris/v1"
+	"strconv"
+	"strings"
+
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/klog/v2"
-	"strconv"
-	"strings"
+
+	dv1 "github.com/apache/doris-operator/api/disaggregated/v1"
+	v1 "github.com/apache/doris-operator/api/doris/v1"
 )
 
 const (
@@ -279,6 +281,13 @@ func newVolumesFromBaseSpec(spec v1.BaseSpec) []corev1.Volume {
 		volumes = append(volumes, volume)
 	}
 
+	for _, v := range spec.Volumes {
+		var volume corev1.Volume
+		volume.Name = v.Name
+		volume.VolumeSource = v.VolumeSource
+		volumes = append(volumes, volume)
+	}
+
 	return volumes
 }
 
@@ -286,7 +295,7 @@ func newVolumesFromBaseSpec(spec v1.BaseSpec) []corev1.Volume {
 func buildVolumeMounts(spec v1.BaseSpec, componentType v1.ComponentType) []corev1.VolumeMount {
 	var volumeMounts []corev1.VolumeMount
 	_, volumeMounts = appendPodInfoVolumesVolumeMounts(nil, volumeMounts)
-	if len(spec.PersistentVolumes) == 0 {
+	if len(spec.PersistentVolumes) == 0 && len(spec.Volumes) == 0 {
 		_, volumeMount := getDefaultVolumesVolumeMounts(componentType)
 		volumeMounts = append(volumeMounts, volumeMount...)
 		return volumeMounts
@@ -296,6 +305,14 @@ func buildVolumeMounts(spec v1.BaseSpec, componentType v1.ComponentType) []corev
 		var volumeMount corev1.VolumeMount
 		volumeMount.MountPath = pvs.MountPath
 		volumeMount.Name = pvs.Name
+		volumeMounts = append(volumeMounts, volumeMount)
+	}
+
+	// support hostpath,emptydir etc.
+	for _, v := range spec.Volumes {
+		var volumeMount corev1.VolumeMount
+		volumeMount.MountPath = v.MountPath
+		volumeMount.Name = v.Name
 		volumeMounts = append(volumeMounts, volumeMount)
 	}
 
