@@ -35,27 +35,29 @@ package controller
 
 import (
 	"context"
-	dorisv1 "github.com/apache/doris-operator/api/doris/v1"
-	"github.com/apache/doris-operator/pkg/common/utils/k8s"
-	"github.com/apache/doris-operator/pkg/controller/sub_controller"
-	"github.com/apache/doris-operator/pkg/controller/sub_controller/be"
-	bk "github.com/apache/doris-operator/pkg/controller/sub_controller/broker"
-	cn "github.com/apache/doris-operator/pkg/controller/sub_controller/cn"
-	"github.com/apache/doris-operator/pkg/controller/sub_controller/fe"
+	"os"
+	"time"
+
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/retry"
 	"k8s.io/klog/v2"
-	"os"
 	controller_builder "sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
-	"time"
+
+	dorisv1 "github.com/apache/doris-operator/api/doris/v1"
+	"github.com/apache/doris-operator/pkg/common/utils/k8s"
+	"github.com/apache/doris-operator/pkg/controller/sub_controller"
+	"github.com/apache/doris-operator/pkg/controller/sub_controller/be"
+	bk "github.com/apache/doris-operator/pkg/controller/sub_controller/broker"
+	"github.com/apache/doris-operator/pkg/controller/sub_controller/cn"
+	"github.com/apache/doris-operator/pkg/controller/sub_controller/fe"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -160,9 +162,9 @@ func (r *DorisClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	return r.updateDorisClusterStatus(ctx, dcr)
 }
 
-//if cluster spec be reverted, doris operator should revert to old.
-//this action is not good, but this will be a good shield for scale down of fe.
-func(r *DorisClusterReconciler) revertDorisClusterSomeFields(ctx context.Context, getDcr, updatedDcr *dorisv1.DorisCluster) error {
+// if cluster spec be reverted, doris operator should revert to old.
+// this action is not good, but this will be a good shield for scale down of fe.
+func (r *DorisClusterReconciler) revertDorisClusterSomeFields(ctx context.Context, getDcr, updatedDcr *dorisv1.DorisCluster) error {
 	if *getDcr.Spec.FeSpec.Replicas != *updatedDcr.Spec.FeSpec.Replicas {
 		return k8s.ApplyDorisCluster(ctx, r.Client, updatedDcr)
 	}
@@ -170,7 +172,7 @@ func(r *DorisClusterReconciler) revertDorisClusterSomeFields(ctx context.Context
 	return nil
 }
 
-func(r *DorisClusterReconciler) updateDorisCluster(ctx context.Context, dcr *dorisv1.DorisCluster) error {
+func (r *DorisClusterReconciler) updateDorisCluster(ctx context.Context, dcr *dorisv1.DorisCluster) error {
 	return k8s.ApplyDorisCluster(ctx, r.Client, dcr)
 }
 
